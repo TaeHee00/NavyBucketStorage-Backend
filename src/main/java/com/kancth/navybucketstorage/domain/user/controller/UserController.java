@@ -23,4 +23,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED)
                              .body(RegisterResponse.of(userService.register(request)));
     }
+
+    // TODO: 회원가입 했으면 또 뭐하냐?
+    // TODO: 이미지 업로드
 }

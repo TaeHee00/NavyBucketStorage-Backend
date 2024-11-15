@@ -3,6 +3,7 @@ package com.kancth.navybucketstorage.domain.user.service;
 import com.kancth.navybucketstorage.domain.user.dto.RegisterRequest;
 import com.kancth.navybucketstorage.domain.user.entity.User;
 import com.kancth.navybucketstorage.domain.user.exception.UserAlreadyExistsException;
+import com.kancth.navybucketstorage.domain.user.exception.UserNotFoundException;
 import com.kancth.navybucketstorage.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,10 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.password()));
 
         return userRepository.save(user);
+    }
+
+    public User getUser(Long id) {
+        return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
     }
 
     private void checkEmailDuplicate(String email) {
