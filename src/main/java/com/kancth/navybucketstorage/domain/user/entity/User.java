@@ -1,6 +1,7 @@
 package com.kancth.navybucketstorage.domain.user.entity;
 
 import com.kancth.navybucketstorage.domain.user.dto.RegisterRequest;
+import com.kancth.navybucketstorage.global.interceptor.auth.AuthType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
@@ -31,8 +32,11 @@ public class User {
     private String username;
     @Column(nullable = false)
     private String email;
+    @Setter
     @Column(nullable = false)
     private String password;
+    @Enumerated(EnumType.STRING)
+    private AuthType authType;
 
     @CreatedDate
     private LocalDateTime createdAt;
@@ -45,6 +49,7 @@ public class User {
                 .username(request.username())
                 .email(request.email())
                 .password(request.password())
+                .authType(AuthType.USER)
                 .build();
     }
 }
