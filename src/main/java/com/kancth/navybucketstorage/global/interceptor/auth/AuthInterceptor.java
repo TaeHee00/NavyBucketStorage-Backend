@@ -25,6 +25,10 @@ public class AuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if (!(handler instanceof HandlerMethod)) {
+            return HandlerInterceptor.super.preHandle(request, response, handler);
+        }
+
         Auth auth = getAnnotation((HandlerMethod) handler, Auth.class);
 
         if (auth == null) {
