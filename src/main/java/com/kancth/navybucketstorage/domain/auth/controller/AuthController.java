@@ -3,6 +3,8 @@ package com.kancth.navybucketstorage.domain.auth.controller;
 import com.kancth.navybucketstorage.domain.auth.dto.LoginRequest;
 import com.kancth.navybucketstorage.domain.auth.dto.LoginResponse;
 import com.kancth.navybucketstorage.domain.auth.service.AuthService;
+import com.kancth.navybucketstorage.global.interceptor.auth.Auth;
+import com.kancth.navybucketstorage.global.interceptor.auth.AuthType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +19,7 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Auth(authType = AuthType.NONE)
     @PostMapping
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
