@@ -1,10 +1,13 @@
 package com.kancth.navybucketstorage.domain.user.service;
 
+import com.kancth.navybucketstorage.domain.user.dto.EmailCheckResponse;
 import com.kancth.navybucketstorage.domain.user.dto.RegisterRequest;
 import com.kancth.navybucketstorage.domain.user.entity.User;
 import com.kancth.navybucketstorage.domain.user.exception.UserAlreadyExistsException;
 import com.kancth.navybucketstorage.domain.user.exception.UserNotFoundException;
 import com.kancth.navybucketstorage.domain.user.repository.UserRepository;
+import com.kancth.navybucketstorage.global.exception.dto.Message;
+import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,5 +36,12 @@ public class UserService {
         if (userRepository.existsByEmail(email)) {
             throw new UserAlreadyExistsException();
         }
+    }
+
+    public EmailCheckResponse checkEmail(@Email(message = "이메일 형식이 올바르지 않습니다.") String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new UserAlreadyExistsException();
+        }
+        return EmailCheckResponse.of(email, "생성 가능한 이메일 입니다.");
     }
 }
