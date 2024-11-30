@@ -51,9 +51,9 @@ public class File {
         return File.builder()
                 .bucket(bucket)
                 .fileName(file.getOriginalFilename())
-                .size(file.getSize())
-                .path("/")
-                .url("/")
+                .size(file.getSize()) // Byte
+                .path("/") // TODO: Username or pk folder에 넣어야지
+                .url("/") // 사진 가져오는 URL
                 .build();
     }
 }
