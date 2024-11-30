@@ -48,12 +48,19 @@ public class File {
     private LocalDateTime deletedAt;
 
     public static File create(Bucket bucket, MultipartFile file) {
+        boolean isContainsWhiteSpace = file.getOriginalFilename().contains(" ");
+        String replaceFileName = file.getOriginalFilename().replaceAll(" ", "+");
+
+        String saveUrl = bucket.getName() + "." + bucket.getOwner().getId() + "/" + file.getOriginalFilename();
+        if (isContainsWhiteSpace) {
+            saveUrl = bucket.getName() + "." + bucket.getOwner().getId() + "/" + replaceFileName;
+        }
         return File.builder()
                 .bucket(bucket)
                 .fileName(file.getOriginalFilename())
                 .size(file.getSize()) // Byte
-                .path("/") // TODO: Username or pk folder에 넣어야지
-                .url("/") // 사진 가져오는 URL
+                .path(bucket.getOwner().getId().toString() + "/" + bucket.getId().toString() + "/")
+                .url(saveUrl)
                 .build();
     }
 }
