@@ -6,16 +6,20 @@ import com.kancth.navybucketstorage.domain.bucket.service.BucketService;
 import com.kancth.navybucketstorage.domain.file.dto.CreateFileListResponse;
 import com.kancth.navybucketstorage.domain.file.dto.CreateFileRequest;
 import com.kancth.navybucketstorage.domain.file.entity.File;
+import com.kancth.navybucketstorage.domain.file.exception.FileNotFoundException;
 import com.kancth.navybucketstorage.domain.file.repository.FileRepository;
 import com.kancth.navybucketstorage.domain.user.entity.User;
 import com.kancth.navybucketstorage.global.exception.UnauthorizedAccessException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -59,6 +63,24 @@ public class FileService {
         saveFile(entityAndFiles);
 
         return CreateFileListResponse.of(bucket, successedFileList, failedFileList);
+    }
+
+    public Resource download(String bucketName, String fileName) {
+        // TODO: Access 관리
+        File file = fileRepository.findByUrl(bucketName + "/" + fileName).orElseThrow(FileNotFoundException::new);
+
+        try {
+            Path fileStorageLocation = Paths.get("/Users/mac/Desktop/navy-cloud/" + file.getPath().replaceAll("\\+", " "));
+            Path filePath = fileStorageLocation.resolve(fileName.replaceAll("\\+", " ")).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists()) {
+                return resource;
+            } else {
+                throw new FileNotFoundException();
+            }
+        } catch (MalformedURLException ex) {
+            throw new FileNotFoundException();
+        }
     }
 
     private List<EntityAndFile> translateEntityAndFile(List<File> fileList, CreateFileRequest createFileRequest) {
@@ -111,9 +133,10 @@ public class FileService {
         });
     }
 
-    private record EntityAndFile (
+    private record EntityAndFile(
             File entity,
             MultipartFile file
-    ) {}
+    ) {
+    }
 }
 
