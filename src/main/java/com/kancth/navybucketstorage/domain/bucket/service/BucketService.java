@@ -5,6 +5,8 @@ import com.kancth.navybucketstorage.domain.bucket.dto.CreateBucketRequest;
 import com.kancth.navybucketstorage.domain.bucket.entity.Bucket;
 import com.kancth.navybucketstorage.domain.bucket.exception.BucketNotFoundException;
 import com.kancth.navybucketstorage.domain.bucket.repository.BucketRepository;
+import com.kancth.navybucketstorage.domain.file.entity.File;
+import com.kancth.navybucketstorage.domain.file.repository.FileRepository;
 import com.kancth.navybucketstorage.domain.user.entity.User;
 import com.kancth.navybucketstorage.global.exception.UnauthorizedAccessException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +22,7 @@ public class BucketService {
 
     private final AuthService authService;
     private final BucketRepository bucketRepository;
+    private final FileRepository fileRepository;
 
     public Bucket create(CreateBucketRequest createBucketRequest, HttpServletRequest request) {
         User user = authService.getCurrentUser(request);
@@ -54,4 +57,12 @@ public class BucketService {
         return bucketRepository.findById(bucketId).orElseThrow(BucketNotFoundException::new);
     }
 
+    public List<File> getBucketFiles(Long bucketId, HttpServletRequest request) {
+        User user = authService.getCurrentUser(request);
+        Bucket bucket = getBucket(bucketId);
+
+        this.checkBucketOwner(bucket, user);
+
+        return fileRepository.findAllByBucket(bucket);
+    }
 }
