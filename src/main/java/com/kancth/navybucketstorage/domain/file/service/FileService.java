@@ -2,6 +2,7 @@ package com.kancth.navybucketstorage.domain.file.service;
 
 import com.kancth.navybucketstorage.domain.auth.service.AuthService;
 import com.kancth.navybucketstorage.domain.bucket.entity.Bucket;
+import com.kancth.navybucketstorage.domain.bucket.repository.BucketRepository;
 import com.kancth.navybucketstorage.domain.bucket.service.BucketService;
 import com.kancth.navybucketstorage.domain.file.dto.CreateFileListResponse;
 import com.kancth.navybucketstorage.domain.file.dto.CreateFileRequest;
@@ -39,6 +40,7 @@ public class FileService {
     private final AuthService authService;
     private final BucketService bucketService;
     private final FileRepository fileRepository;
+    private final BucketRepository bucketRepository;
 
     @Transactional
     public CreateFileListResponse create(CreateFileRequest createFileRequest, HttpServletRequest request) {
@@ -82,6 +84,21 @@ public class FileService {
         } catch (MalformedURLException ex) {
             throw new FileNotFoundException();
         }
+    }
+
+    @Transactional
+    public void delete(Long fileId, HttpServletRequest request) {
+        User user = authService.getCurrentUser(request);
+        File file = this.getFile(fileId);
+        Bucket bucket = file.getBucket();
+
+        bucketService.checkBucketOwner(bucket, user);
+
+        fileRepository.delete(file);
+    }
+
+    private File getFile(Long fileId) {
+        return fileRepository.findById(fileId).orElseThrow(FileNotFoundException::new);
     }
 
     private List<EntityAndFile> translateEntityAndFile(List<File> fileList, CreateFileRequest createFileRequest) {
