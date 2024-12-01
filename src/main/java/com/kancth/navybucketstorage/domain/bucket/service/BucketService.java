@@ -10,6 +10,7 @@ import com.kancth.navybucketstorage.global.exception.UnauthorizedAccessException
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class BucketService {
         return bucketRepository.findAllByOwner(user);
     }
 
+    @Transactional
     public void delete(Long bucketId, HttpServletRequest request) {
         User user = authService.getCurrentUser(request);
 
