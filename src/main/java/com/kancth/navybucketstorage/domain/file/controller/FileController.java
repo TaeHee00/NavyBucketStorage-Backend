@@ -30,6 +30,7 @@ public class FileController {
     @Auth(authType = AuthType.USER)
     @PostMapping
     public ResponseEntity<CreateFileListResponse> upload(@ModelAttribute CreateFileRequest createFileRequest, HttpServletRequest request) {
+        // TODO: 같은 이름으로 된 파일 업로드 시 덮어쓰기 -> 객체 버전관리 기능 만들어서 실수 삭제 or 덮어쓰기 실수 방지
         return ResponseEntity.status(HttpStatus.CREATED)
                              .body(fileService.create(createFileRequest, request));
     }
@@ -50,9 +51,16 @@ public class FileController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(resource.getFilename(), StandardCharsets.UTF_8) + "\"")
                 .body(resource);
     }
-    // 파일 목록 가져오기
-    // 버킷 목록 가져오기
-    // 각 도메인 CRUD
+
+    // TODO: 파일 삭제
+    // file ID로 할 경우 History로 변경한다 하더라도 PK 값이 바뀔 가능성 농후 근데 상관없지 어차피 update하면 바꾸면되는ㄴ데
+    @DeleteMapping("/{fileId}")
+    @Auth(authType = AuthType.USER)
+    public ResponseEntity<Void> delete(@PathVariable Long fileId, HttpServletRequest request) {
+        fileService.delete(fileId, request);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
     // bucket Private/Public 여부
     // PreSigned URL
 }
