@@ -4,6 +4,7 @@ import com.kancth.navybucketstorage.domain.bucket.dto.BucketResponse;
 import com.kancth.navybucketstorage.domain.bucket.dto.CreateBucketResponse;
 import com.kancth.navybucketstorage.domain.bucket.dto.CreateBucketRequest;
 import com.kancth.navybucketstorage.domain.bucket.service.BucketService;
+import com.kancth.navybucketstorage.domain.file.dto.FileResponse;
 import com.kancth.navybucketstorage.global.interceptor.auth.Auth;
 import com.kancth.navybucketstorage.global.interceptor.auth.AuthType;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,5 +40,11 @@ public class BucketController {
     public ResponseEntity<Void> delete(@PathVariable Long bucketId, HttpServletRequest request) {
         bucketService.delete(bucketId, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping("/{bucketId}")
+    @Auth(authType = AuthType.USER)
+    public ResponseEntity<List<FileResponse>> getBucketFiles(@PathVariable Long bucketId, HttpServletRequest request) {
+        return ResponseEntity.ok(bucketService.getBucketFiles(bucketId, request).stream().map(FileResponse::of).toList());
     }
 }
