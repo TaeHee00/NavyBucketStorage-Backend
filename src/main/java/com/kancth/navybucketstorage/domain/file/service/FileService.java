@@ -46,7 +46,7 @@ public class FileService {
         Bucket bucket = bucketService.getBucket(createFileRequest.bucketId());
 
         // bucket owner check
-        this.checkBucketOwner(bucket, user);
+        bucketService.checkBucketOwner(bucket, user);
         // File name 중복 확인 -> 버킷에 같은 이름을 가진 file이 있을 경우 업로드X
         Map<Boolean, List<MultipartFile>> duplicateCheckFileList = this.checkDuplicateFileList(bucket, createFileRequest.files());
         List<MultipartFile> duplicateList = new ArrayList<>();
@@ -95,12 +95,6 @@ public class FileService {
         });
 
         return entityAndFiles;
-    }
-
-    private void checkBucketOwner(Bucket bucket, User user) {
-        if (!bucket.getOwner().getId().equals(user.getId())) {
-            throw new UnauthorizedAccessException();
-        }
     }
 
     private Map<Boolean, List<MultipartFile>> checkDuplicateFileList(Bucket bucket, MultipartFile[] files) {

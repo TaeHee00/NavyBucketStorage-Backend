@@ -6,6 +6,7 @@ import com.kancth.navybucketstorage.domain.bucket.entity.Bucket;
 import com.kancth.navybucketstorage.domain.bucket.exception.BucketNotFoundException;
 import com.kancth.navybucketstorage.domain.bucket.repository.BucketRepository;
 import com.kancth.navybucketstorage.domain.user.entity.User;
+import com.kancth.navybucketstorage.global.exception.UnauthorizedAccessException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,11 @@ public class BucketService {
         User user = authService.getCurrentUser(request);
 
         return bucketRepository.findAllByOwner(user);
+    }
+    public void checkBucketOwner(Bucket bucket, User user) {
+        if (!bucket.getOwner().getId().equals(user.getId())) {
+            throw new UnauthorizedAccessException();
+        }
     }
 
     public Bucket getBucket(Long bucketId) {
