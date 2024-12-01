@@ -31,6 +31,17 @@ public class BucketService {
 
         return bucketRepository.findAllByOwner(user);
     }
+
+    public void delete(Long bucketId, HttpServletRequest request) {
+        User user = authService.getCurrentUser(request);
+
+        Bucket bucket = getBucket(bucketId);
+        this.checkBucketOwner(bucket, user);
+
+        bucketRepository.delete(bucket);
+
+    }
+
     public void checkBucketOwner(Bucket bucket, User user) {
         if (!bucket.getOwner().getId().equals(user.getId())) {
             throw new UnauthorizedAccessException();
