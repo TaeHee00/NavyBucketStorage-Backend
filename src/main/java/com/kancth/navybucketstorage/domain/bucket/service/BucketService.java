@@ -10,6 +10,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class BucketService {
@@ -21,6 +23,12 @@ public class BucketService {
         User user = authService.getCurrentUser(request);
 
         return bucketRepository.save(Bucket.create(createBucketRequest, user));
+    }
+
+    public List<Bucket> list(HttpServletRequest request) {
+        User user = authService.getCurrentUser(request);
+
+        return bucketRepository.findAllByOwner(user);
     }
 
     public Bucket getBucket(Long bucketId) {
