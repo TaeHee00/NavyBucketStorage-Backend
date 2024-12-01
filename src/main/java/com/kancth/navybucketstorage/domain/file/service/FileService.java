@@ -1,6 +1,7 @@
 package com.kancth.navybucketstorage.domain.file.service;
 
 import com.kancth.navybucketstorage.domain.auth.service.AuthService;
+import com.kancth.navybucketstorage.domain.bucket.BucketAccessLevel;
 import com.kancth.navybucketstorage.domain.bucket.entity.Bucket;
 import com.kancth.navybucketstorage.domain.bucket.repository.BucketRepository;
 import com.kancth.navybucketstorage.domain.bucket.service.BucketService;
@@ -12,6 +13,7 @@ import com.kancth.navybucketstorage.domain.file.repository.FileRepository;
 import com.kancth.navybucketstorage.domain.user.entity.User;
 import com.kancth.navybucketstorage.global.exception.UnauthorizedAccessException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -68,9 +70,14 @@ public class FileService {
         return CreateFileListResponse.of(bucket, successedFileList, failedFileList);
     }
 
+    @Transactional
     public Resource download(String bucketName, String fileName) {
-        // TODO: Access 관리
+        // TODO: bucket Private/Public 처리
         File file = fileRepository.findByUrl(bucketName + "/" + fileName).orElseThrow(FileNotFoundException::new);
+
+        if (BucketAccessLevel.PRIVATE.equals(file.getBucket().getAccessLevel())) {
+            throw new UnauthorizedAccessException();
+        }
 
         try {
             Path fileStorageLocation = Paths.get("/Users/mac/Desktop/navy-cloud/" + file.getPath().replaceAll("\\+", " "));

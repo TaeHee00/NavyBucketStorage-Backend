@@ -52,7 +52,6 @@ public class FileController {
                 .body(resource);
     }
 
-    // TODO: 파일 삭제
     // file ID로 할 경우 History로 변경한다 하더라도 PK 값이 바뀔 가능성 농후 근데 상관없지 어차피 update하면 바꾸면되는ㄴ데
     @DeleteMapping("/{fileId}")
     @Auth(authType = AuthType.USER)
@@ -60,7 +59,5 @@ public class FileController {
         fileService.delete(fileId, request);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
-    // bucket Private/Public 여부
     // PreSigned URL
 }
