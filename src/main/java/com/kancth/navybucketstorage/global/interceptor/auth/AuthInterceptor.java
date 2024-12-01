@@ -59,7 +59,12 @@ public class AuthInterceptor implements HandlerInterceptor {
     }
 
     private String getAuthToken(HttpServletRequest request) {
-        return Optional.of(request.getHeader("Authorization")).orElseThrow(InvalidTokenException::new);
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return Optional.of(authHeader.replace("Bearer ", "")).orElseThrow(InvalidTokenException::new);
+        } else {
+            throw new InvalidTokenException();
+        }
     }
 
     private void checkPermission(User user, AuthType authType) {
