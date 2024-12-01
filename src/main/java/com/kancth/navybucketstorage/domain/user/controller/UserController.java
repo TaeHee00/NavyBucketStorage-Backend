@@ -28,8 +28,4 @@ public class UserController {
     public ResponseEntity<EmailCheckResponse> checkEmail(@RequestParam("email") @Email(message = "이메일 형식이 올바르지 않습니다.") String email) {
         return ResponseEntity.ok(userService.checkEmail(email));
     }
-
-
-    // TODO: 회원가입 했으면 또 뭐하냐?
-    // TODO: 이미지 업로드
 }

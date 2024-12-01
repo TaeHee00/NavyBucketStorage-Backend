@@ -24,7 +24,4 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
-
-    // TODO: 회원가입 했으면 또 뭐하냐?
-    // TODO: 이미지 업로드
 }

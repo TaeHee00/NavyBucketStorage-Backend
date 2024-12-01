@@ -43,8 +43,6 @@ public class AuthInterceptor implements HandlerInterceptor {
             }
             case USER, ADMIN -> {
                 final String authToken = this.getAuthToken(request);
-                // FIXME: AccessToken 이거 redis에 넣으면 안됨 애초에 그럴려고 쓰는거
-                // FIXME: passwordEncoding 필요함 회원가입할때 넣자
                 User user = jwtService.getUser(authToken);
 
                 this.checkPermission(user, AuthType.USER);

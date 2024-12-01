@@ -50,4 +50,9 @@ public class FileController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + URLEncoder.encode(resource.getFilename(), StandardCharsets.UTF_8) + "\"")
                 .body(resource);
     }
+    // 파일 목록 가져오기
+    // 버킷 목록 가져오기
+    // 각 도메인 CRUD
+    // bucket Private/Public 여부
+    // PreSigned URL
 }
