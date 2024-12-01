@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -27,7 +28,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,6 +40,7 @@ public class FileService {
     private final BucketService bucketService;
     private final FileRepository fileRepository;
 
+    @Transactional
     public CreateFileListResponse create(CreateFileRequest createFileRequest, HttpServletRequest request) {
         User user = authService.getCurrentUser(request);
         Bucket bucket = bucketService.getBucket(createFileRequest.bucketId());
