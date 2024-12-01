@@ -9,17 +9,19 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder(access = AccessLevel.PRIVATE)
-public record BucketResponse(
+public record CreateBucketResponse(
         Long id,
+        UserResponse owner,
         String bucketName,
         BucketAccessLevel accessLevel,
         String description,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public static BucketResponse of(Bucket bucket) {
-        return BucketResponse.builder()
+    public static CreateBucketResponse of(Bucket bucket) {
+        return CreateBucketResponse.builder()
                 .id(bucket.getId())
+                .owner(UserResponse.of(bucket.getOwner()))
                 .bucketName(bucket.getName())
                 .accessLevel(bucket.getAccessLevel())
                 .description(bucket.getDescription())
