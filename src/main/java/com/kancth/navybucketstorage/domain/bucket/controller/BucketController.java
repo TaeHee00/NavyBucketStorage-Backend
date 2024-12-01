@@ -28,11 +28,16 @@ public class BucketController {
                              .body(CreateBucketResponse.of(bucketService.create(createBucketRequest, request)));
     }
 
-    // TODO: User 버킷 목록 가져오기
     @GetMapping
     @Auth(authType = AuthType.USER)
     public ResponseEntity<List<BucketResponse>> list(HttpServletRequest request) {
         return ResponseEntity.ok(bucketService.list(request).stream().map(BucketResponse::of).toList());
     }
-    // TODO: 버킷 삭제하기
+
+    @DeleteMapping("/{bucketId}")
+    @Auth(authType = AuthType.USER)
+    public ResponseEntity<Void> delete(@PathVariable Long bucketId, HttpServletRequest request) {
+        bucketService.delete(bucketId, request);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
