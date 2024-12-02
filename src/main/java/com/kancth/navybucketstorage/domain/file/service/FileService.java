@@ -127,10 +127,10 @@ public class FileService {
         return fileRepository.findById(fileId).orElseThrow(FileNotFoundException::new);
     }
 
-    private List<EntityAndFile> translateEntityAndFile(List<File> fileList, CreateFileRequest createFileRequest) {
+    private List<EntityAndFile> translateEntityAndFile(List<File> fileList, MultipartFile[] files) {
         List<EntityAndFile> entityAndFiles = new ArrayList<>();
         fileList.forEach((file) -> {
-            Stream.of(createFileRequest.files()).forEach((multipartFile) -> {
+            Stream.of(files).forEach((multipartFile) -> {
                 if (multipartFile.getOriginalFilename().equals(file.getFileName())) {
                     entityAndFiles.add(new EntityAndFile(file, multipartFile));
                 }
