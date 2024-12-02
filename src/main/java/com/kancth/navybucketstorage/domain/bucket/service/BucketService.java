@@ -1,12 +1,16 @@
 package com.kancth.navybucketstorage.domain.bucket.service;
 
 import com.kancth.navybucketstorage.domain.auth.service.AuthService;
+import com.kancth.navybucketstorage.domain.bucket.TimeType;
 import com.kancth.navybucketstorage.domain.bucket.dto.CreateBucketRequest;
+import com.kancth.navybucketstorage.domain.bucket.dto.CreateUploadPreSignedUrlRequest;
+import com.kancth.navybucketstorage.domain.bucket.dto.CreateUploadPreSignedUrlResponse;
 import com.kancth.navybucketstorage.domain.bucket.entity.Bucket;
 import com.kancth.navybucketstorage.domain.bucket.exception.BucketNotFoundException;
 import com.kancth.navybucketstorage.domain.bucket.repository.BucketRepository;
 import com.kancth.navybucketstorage.domain.file.entity.File;
 import com.kancth.navybucketstorage.domain.file.repository.FileRepository;
+import com.kancth.navybucketstorage.domain.security.service.PreSignedCredentialService;
 import com.kancth.navybucketstorage.domain.user.entity.User;
 import com.kancth.navybucketstorage.global.exception.UnauthorizedAccessException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +27,7 @@ public class BucketService {
     private final AuthService authService;
     private final BucketRepository bucketRepository;
     private final FileRepository fileRepository;
+    private final PreSignedCredentialService preSignedCredentialService;
 
     public Bucket create(CreateBucketRequest createBucketRequest, HttpServletRequest request) {
         User user = authService.getCurrentUser(request);
@@ -47,6 +52,26 @@ public class BucketService {
 
     }
 
+    @Transactional
+    public CreateUploadPreSignedUrlResponse createUploadPreSignedUrl(CreateUploadPreSignedUrlRequest preSignedRequest, HttpServletRequest request) {
+        User user = authService.getCurrentUser(request);
+        Bucket bucket = this.getBucket(preSignedRequest.bucketId());
+
+        this.checkBucketOwner(bucket, user);
+
+        // Time Type에 따라 Second로 치환
+        Long expiredSecond = 0L;
+        switch (preSignedRequest.timeType()) {
+            case TimeType.HOUR -> expiredSecond = preSignedRequest.time() * 60 * 60;
+            case MINUTE -> expiredSecond = preSignedRequest.time() * 60;
+            case SECOND -> expiredSecond = preSignedRequest.time();
+        }
+        // Credential 생성
+        String credential = preSignedCredentialService.genUploadPreSignedCredential(bucket.getOwner(), bucket, expiredSecond);
+        String url = bucket.getName() + "." + bucket.getOwner().getId() + "?credential=" + credential;
+        return CreateUploadPreSignedUrlResponse.of(url, bucket, expiredSecond);
+    }
+
     public void checkBucketOwner(Bucket bucket, User user) {
         if (!bucket.getOwner().getId().equals(user.getId())) {
             throw new UnauthorizedAccessException();
@@ -65,4 +90,5 @@ public class BucketService {
 
         return fileRepository.findAllByBucket(bucket);
     }
+
 }
