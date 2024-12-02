@@ -15,4 +15,6 @@ public interface FileRepository extends JpaRepository<File, Long> {
     Optional<File> findByUrl(String url);
 
     List<File> findAllByBucket(Bucket bucket);
+
+    Optional<File> findByFileNameAndBucket_NameAndBucket_Owner_Id(String fileName, String name, Long id);
 }
