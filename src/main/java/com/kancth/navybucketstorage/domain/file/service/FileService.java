@@ -3,6 +3,7 @@ package com.kancth.navybucketstorage.domain.file.service;
 import com.kancth.navybucketstorage.domain.auth.service.AuthService;
 import com.kancth.navybucketstorage.domain.bucket.BucketAccessLevel;
 import com.kancth.navybucketstorage.domain.bucket.entity.Bucket;
+import com.kancth.navybucketstorage.domain.bucket.exception.BucketNotFoundException;
 import com.kancth.navybucketstorage.domain.bucket.repository.BucketRepository;
 import com.kancth.navybucketstorage.domain.bucket.service.BucketService;
 import com.kancth.navybucketstorage.domain.file.dto.CreateFileListResponse;
@@ -10,6 +11,7 @@ import com.kancth.navybucketstorage.domain.file.dto.CreateFileRequest;
 import com.kancth.navybucketstorage.domain.file.entity.File;
 import com.kancth.navybucketstorage.domain.file.exception.FileNotFoundException;
 import com.kancth.navybucketstorage.domain.file.repository.FileRepository;
+import com.kancth.navybucketstorage.domain.security.service.PreSignedCredentialService;
 import com.kancth.navybucketstorage.domain.user.entity.User;
 import com.kancth.navybucketstorage.global.exception.UnauthorizedAccessException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,31 +45,16 @@ public class FileService {
     private final BucketService bucketService;
     private final FileRepository fileRepository;
     private final BucketRepository bucketRepository;
+    private final PreSignedCredentialService preSignedCredentialService;
 
     @Transactional
-    public CreateFileListResponse create(CreateFileRequest createFileRequest, HttpServletRequest request) {
+    public CreateFileListResponse ownerUpload(CreateFileRequest createFileRequest, HttpServletRequest request) {
         User user = authService.getCurrentUser(request);
         Bucket bucket = bucketService.getBucket(createFileRequest.bucketId());
 
         // bucket owner check
         bucketService.checkBucketOwner(bucket, user);
-        // File name 중복 확인 -> 버킷에 같은 이름을 가진 file이 있을 경우 업로드X
-        Map<Boolean, List<MultipartFile>> duplicateCheckFileList = this.checkDuplicateFileList(bucket, createFileRequest.files());
-        List<MultipartFile> duplicateList = new ArrayList<>();
-        if (duplicateCheckFileList.get(true) != null) {
-            duplicateList.addAll(duplicateCheckFileList.get(true));
-        }
-        List<String> failedFileList = duplicateList.stream().map(MultipartFile::getOriginalFilename).toList();
-
-        List<File> successedFileList = new ArrayList<>();
-        if (duplicateCheckFileList.get(false) != null) {
-            successedFileList.addAll(fileRepository.saveAll(duplicateCheckFileList.get(false).stream().map((file) -> File.create(bucket, file)).toList()));
-        }
-
-        List<EntityAndFile> entityAndFiles = translateEntityAndFile(successedFileList, createFileRequest);
-        saveFile(entityAndFiles);
-
-        return CreateFileListResponse.of(bucket, successedFileList, failedFileList);
+        return upload(bucket, createFileRequest.files());
     }
 
     @Transactional
