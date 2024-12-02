@@ -103,6 +103,25 @@ public class FileService {
 
         fileRepository.delete(file);
     }
+    private CreateFileListResponse upload(Bucket bucket, MultipartFile[] files) {
+        // File name 중복 확인 -> 버킷에 같은 이름을 가진 file이 있을 경우 업로드X
+        Map<Boolean, List<MultipartFile>> duplicateCheckFileList = this.checkDuplicateFileList(bucket, files);
+        List<MultipartFile> duplicateList = new ArrayList<>();
+        if (duplicateCheckFileList.get(true) != null) {
+            duplicateList.addAll(duplicateCheckFileList.get(true));
+        }
+        List<String> failedFileList = duplicateList.stream().map(MultipartFile::getOriginalFilename).toList();
+
+        List<File> successedFileList = new ArrayList<>();
+        if (duplicateCheckFileList.get(false) != null) {
+            successedFileList.addAll(fileRepository.saveAll(duplicateCheckFileList.get(false).stream().map((file) -> File.create(bucket, file)).toList()));
+        }
+
+        List<EntityAndFile> entityAndFiles = translateEntityAndFile(successedFileList, files);
+        saveFile(entityAndFiles);
+
+        return CreateFileListResponse.of(bucket, successedFileList, failedFileList);
+    }
 
     private File getFile(Long fileId) {
         return fileRepository.findById(fileId).orElseThrow(FileNotFoundException::new);
