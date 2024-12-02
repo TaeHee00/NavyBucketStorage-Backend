@@ -103,6 +103,14 @@ public class FileService {
 
         fileRepository.delete(file);
     }
+
+    public CreateFileListResponse preSignedUpload(String bucketName, String credential, MultipartFile[] files) {
+        // credential이 owner가 발급한게 맞는지 && 해당 Bucket 해당하는 credential인지 확인
+        Bucket bucket = preSignedCredentialService.getEntityCredential(credential, bucketName, Bucket.class);
+
+        return this.upload(bucket, files);
+    }
+
     private CreateFileListResponse upload(Bucket bucket, MultipartFile[] files) {
         // File name 중복 확인 -> 버킷에 같은 이름을 가진 file이 있을 경우 업로드X
         Map<Boolean, List<MultipartFile>> duplicateCheckFileList = this.checkDuplicateFileList(bucket, files);
