@@ -1,8 +1,6 @@
 package com.kancth.navybucketstorage.domain.bucket.controller;
 
-import com.kancth.navybucketstorage.domain.bucket.dto.BucketResponse;
-import com.kancth.navybucketstorage.domain.bucket.dto.CreateBucketResponse;
-import com.kancth.navybucketstorage.domain.bucket.dto.CreateBucketRequest;
+import com.kancth.navybucketstorage.domain.bucket.dto.*;
 import com.kancth.navybucketstorage.domain.bucket.service.BucketService;
 import com.kancth.navybucketstorage.domain.file.dto.FileResponse;
 import com.kancth.navybucketstorage.global.interceptor.auth.Auth;
@@ -46,5 +44,13 @@ public class BucketController {
     @Auth(authType = AuthType.USER)
     public ResponseEntity<List<FileResponse>> getBucketFiles(@PathVariable Long bucketId, HttpServletRequest request) {
         return ResponseEntity.ok(bucketService.getBucketFiles(bucketId, request).stream().map(FileResponse::of).toList());
+    }
+
+    @PostMapping("/pre-sign")
+    @Auth(authType = AuthType.USER)
+//    @RequestParam("credential") String credential <-- 이건 나중에 요청 보낼때 확인할꺼
+    public ResponseEntity<CreateUploadPreSignedUrlResponse> createUploadPreSignedUrl(CreateUploadPreSignedUrlRequest preSignedRequest, HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                            .body(bucketService.createUploadPreSignedUrl(preSignedRequest, request));
     }
 }
