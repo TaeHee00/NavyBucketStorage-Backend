@@ -1,6 +1,7 @@
 package com.kancth.navybucketstorage.domain.bucket.controller;
 
 import com.kancth.navybucketstorage.domain.bucket.dto.*;
+import com.kancth.navybucketstorage.domain.bucket.entity.Bucket;
 import com.kancth.navybucketstorage.domain.bucket.service.BucketService;
 import com.kancth.navybucketstorage.domain.file.dto.FileResponse;
 import com.kancth.navybucketstorage.global.interceptor.auth.Auth;
@@ -42,8 +43,10 @@ public class BucketController {
 
     @GetMapping("/{bucketId}")
     @Auth(authType = AuthType.USER)
-    public ResponseEntity<List<FileResponse>> getBucketFiles(@PathVariable Long bucketId, HttpServletRequest request) {
-        return ResponseEntity.ok(bucketService.getBucketFiles(bucketId, request).stream().map(FileResponse::of).toList());
+    public ResponseEntity<BucketFilesResponse> getBucketFiles(@PathVariable Long bucketId, HttpServletRequest request) {
+        List<FileResponse> files = bucketService.getBucketFiles(bucketId, request).stream().map(FileResponse::of).toList();
+        Bucket bucket = bucketService.getBucket(bucketId);
+        return ResponseEntity.ok(BucketFilesResponse.of(bucket, files));
     }
 
     @PostMapping("/pre-sign")
